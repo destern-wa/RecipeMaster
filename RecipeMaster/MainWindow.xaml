@@ -1,0 +1,202 @@
+﻿<Controls:MetroWindow x:Class="RecipeMaster.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+
+        xmlns:local="clr-namespace:RecipeMaster"
+        mc:Ignorable="d"
+
+        xmlns:View="clr-namespace:RecipeMaster.View"
+        
+        Title="Recipe Master" Height="auto" Width="750"
+        MinHeight="250"
+        MinWidth="600" Closing="Window_Closing" Loaded="Window_Loaded"
+                      x:Name="win">
+
+    <Controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <!--  This is the template for all items within the hamburger menu -->
+            <DataTemplate x:Key="HamburgerOptionsMenuItem" DataType="{x:Type Controls:HamburgerMenuIconItem}">
+                <DockPanel Height="48" LastChildFill="True">
+                    <ContentControl x:Name="IconPart"
+                        Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Controls:HamburgerMenu}}, Path=CompactPaneLength}"
+                        Content="{Binding Icon}"
+                        DockPanel.Dock="Left"
+                        Focusable="False"
+                        IsTabStop="False" />
+                    <TextBlock x:Name="TextPart"
+                   VerticalAlignment="Center"
+                   FontSize="16"
+                   Text="{Binding Label}" />
+                </DockPanel>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type Controls:HamburgerMenu}}, Path=PanePlacement}" Value="Right">
+                        <Setter TargetName="IconPart" Property="DockPanel.Dock" Value="Right" />
+                        <Setter TargetName="TextPart" Property="Margin" Value="8 0 0 0" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+        </ResourceDictionary>
+    </Controls:MetroWindow.Resources>
+
+    <!-- Hamburger menu based on https://mahapps.com/docs/controls/HamburgerMenu  -->
+    <Controls:HamburgerMenu x:Name="HamburgerMenuControl"
+                            DisplayMode="CompactOverlay"
+                            HamburgerWidth="48"
+                            ItemInvoked="HamburgerMenuControl_OnItemInvoked"
+                            ItemTemplate="{StaticResource HamburgerOptionsMenuItem}"
+                            OptionsItemTemplate="{StaticResource HamburgerOptionsMenuItem}"
+                            SelectedIndex="{Binding CurrentViewIndex, Mode=OneWay}">
+
+        <!--  Hamburger Menu Header  -->
+        <Controls:HamburgerMenu.HamburgerMenuHeaderTemplate>
+            <DataTemplate>
+                <TextBlock HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="16"
+                   Foreground="White"
+                   Text="Menu" />
+            </DataTemplate>
+        </Controls:HamburgerMenu.HamburgerMenuHeaderTemplate>
+
+        <!--  Hamburger Menu Items  -->
+        <Controls:HamburgerMenu.ItemsSource>
+            <Controls:HamburgerMenuItemCollection>
+                <!-- Dashboard -->
+                <Controls:HamburgerMenuIconItem Label="Dashboard">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="ViewDashboard" 
+                                                    Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock Text="Dashboard"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+                <!-- Add recipe -->
+                <Controls:HamburgerMenuIconItem Label="Add recipe">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="PencilPlus" 
+                                                    Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock Text="Add"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+                <!-- Browse recipes -->
+                <Controls:HamburgerMenuIconItem Label="Browse recipes">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="BookShelf" 
+                                                    Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock Text="Browse"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+                <!-- Search recipes -->
+                <Controls:HamburgerMenuIconItem Label="Search">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Magnify" 
+                                                    Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock Text="Search"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+                <!-- View favourite recipes -->
+                <Controls:HamburgerMenuIconItem Label="Favourites">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Star" 
+                                                    Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock Text="Favourites"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold"/>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+            </Controls:HamburgerMenuItemCollection>
+        </Controls:HamburgerMenu.ItemsSource>
+
+        <!--  Hamburger Menu Options Items (appear at bottom of menu)  -->
+        <Controls:HamburgerMenu.OptionsItemsSource>
+            <Controls:HamburgerMenuItemCollection>
+
+                <Controls:HamburgerMenuIconItem Label="About">
+                    <Controls:HamburgerMenuIconItem.Icon>
+                        <iconPacks:PackIconMaterial Width="22"
+                                        Height="22"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Kind="Help" />
+                    </Controls:HamburgerMenuIconItem.Icon>
+                    <Controls:HamburgerMenuIconItem.Tag>
+                        <TextBlock HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="28"
+                       FontWeight="Bold">
+                About
+                        </TextBlock>
+                    </Controls:HamburgerMenuIconItem.Tag>
+                </Controls:HamburgerMenuIconItem>
+
+            </Controls:HamburgerMenuItemCollection>
+        </Controls:HamburgerMenu.OptionsItemsSource>
+
+        <!--  Content (area to right of menu)  -->
+        <Controls:HamburgerMenu.Content>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Content title -->
+                <Border
+                    Grid.Row="0"
+                    Height="48"
+                  Margin="-1 0 -1 0"
+                  Background="DarkSlateGray">
+                    <TextBlock x:Name="Header"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="24"
+                       Foreground="White"
+                       Text="{Binding CurrentViewLabel, Mode=OneWay}" />
+                </Border>
+                
+                <!-- Thin border below title -->
+                <Border
+                    Grid.Row="1"
+                    Height="7"
+                  Margin="0"
+                  Background="AliceBlue"/>
+                
+                <!-- Container for the content view -->
+                <Border
+                    x:Name="ContentViewer"
+                    Grid.Row="2">
+                </Border>
+                
+                <!-- Bar to show messages -->
+                <View:MessageBarView
+                    Grid.Row="3" DataContext="{Binding MessageBar}"
+                />
+            </Grid>
+        </Controls:HamburgerMenu.Content>
+    </Controls:HamburgerMenu>
+</Controls:MetroWindow>

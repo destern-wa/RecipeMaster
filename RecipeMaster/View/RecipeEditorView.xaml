@@ -1,0 +1,288 @@
+﻿<UserControl x:Class="RecipeMaster.View.RecipeEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RecipeMaster.View"
+             xmlns:util="clr-namespace:RecipeMaster.Util"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="700"
+             xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+             xmlns:ViewModel="clr-namespace:RecipeMaster.ViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <util:IntToVisibilityConverter x:Key="IntToVisibility"/>
+        </Grid.Resources>
+
+        <!-- Success/error messaging -->
+        <local:MessageBarView DataContext="{Binding MessageBar}"/>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid x:Name="LayoutRoot" Background="White">
+                <Grid.Resources>
+                    <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+                    <util:BoolToInvisibilityConverter x:Key="BoolToInvis"/>
+                    <util:BoolToEditSymbolConverter x:Key="BoolToEditSymbol"/>
+                    <dxmvvm:BooleanNegationConverter x:Key="Negation"/>
+                    <util:NullableStringToNonNullableStringConverter x:Key="NotNullableString"/>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="100"/>
+
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="150"/>
+
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+
+                    <RowDefinition Height="80"/>
+
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- NAME -->
+                <GroupBox
+                    Header="Recipe Name"
+                    Grid.Row="1" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="4"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="76" Width="387.5" Margin="0,25,0,0" />
+                <TextBox
+                    x:Name="RecipeNameTextbox"
+                    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="30" Width="367.5" Margin="10,10,10,10"
+                    Text="{Binding RecipeModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NotNullableString}}"
+                    TextWrapping="Wrap"/>
+
+                <!-- CATEGORY -->
+                <GroupBox
+                    Header="Category"
+                    Grid.Row="1" Grid.RowSpan="3" Grid.Column="5" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Height="76" Width="187.5" Margin="0,25,0,0" />
+                <Grid
+                    Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Height="30" Width="167.5" Margin="10,10,10,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- choose category from existing -->
+                    <ComboBox
+                        ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{Binding ChooseCategoryFromExisting, Converter={StaticResource BoolToVis}}"/>
+                    <!-- enter a new category -->
+                    <TextBox
+                        x:Name="CategoryTextbox"
+                        Visibility="{Binding ChooseCategoryFromExisting, Converter={StaticResource BoolToInvis}}"
+                        Text="{Binding NewCategoryName, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource NotNullableString}}" TextWrapping="Wrap"/>
+                    <!-- button to switch between modes -->
+                    <Button
+                        Grid.Column="1"
+                        Width="30"
+                        Content="{Binding ChooseCategoryFromExisting, Converter={StaticResource BoolToEditSymbol}}"
+                        Command="{Binding ToggleCategorySelectionModeCommand}"
+                        />
+                </Grid>
+
+                <!-- INGREDIENTS -->
+                <GroupBox
+                    Header="Ingredients"
+                    Grid.Row="3" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="7"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="175" Width="600" Margin="0,25,0,0" />
+                <Grid
+                    Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Choose existing ingredient by name -->
+                    <ComboBox
+                        ItemsSource="{Binding AvailableIngredients}"
+                        SelectedItem="{Binding NewIngredient, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{Binding ChooseIngredientFromExisting, Converter={StaticResource BoolToVis}}">
+                    </ComboBox>
+
+                    <!-- Enter a new ingredient name -->
+                    <TextBox
+                        Visibility="{Binding ChooseIngredientFromExisting, Converter={StaticResource BoolToInvis}}"
+                        Text="{Binding NewIngredient.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NotNullableString}}" TextWrapping="Wrap"/>
+
+                    <!-- button to switch between modes -->
+                    <Button
+                        Grid.Column="1"
+                        Width="30"
+                        Content="{Binding ChooseIngredientFromExisting, Converter={StaticResource BoolToEditSymbol}}"
+                        Command="{Binding ToggleIngredientSelectionModeCommand}"
+                        />  
+
+                    <!-- times symbol -->
+                    <Label
+                        Grid.Column="2" Margin="5,0,0,0"
+                        Content="x"/>
+
+                    <!-- quantity amount -->
+                    <TextBox
+                        Grid.Column="3"
+                        Text="{Binding NewIngredientQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        />
+
+                    <!-- Measure -->
+                    <ComboBox
+                        Grid.Column="4"
+                        ItemsSource="{Binding Measures}"
+                        SelectedItem="{Binding SelectedMeasure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        />
+
+                </Grid>
+
+                <Button
+                    x:Name="AddNewIngrediantButton"
+                    Grid.Row="4" Grid.Column="6"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Height="30" Width="80" Margin="0,10,10,0"
+                    Content="Add"
+                    Command="{Binding AddIngredientCommand}"
+                    />
+
+                <ListBox
+                    x:Name="IngredientsListbox"
+                     Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5"
+                     HorizontalAlignment="Left" VerticalAlignment="Top"
+                     Height="90" Width="480" Margin="10,0,10,10"
+                     ItemsSource="{Binding RecipeIngredients}"
+                     />
+                <Button
+                    x:Name="IngredientsRemoveBotton"
+                    Grid.Row="5" Grid.Column="6"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Height="30" Width="80" Margin="10,10,10,10"
+                    Content="Remove"
+                    Command="{Binding RemoveIngredientCommand}"
+                    CommandParameter="{Binding ElementName=IngredientsListbox, Path=SelectedIndex}"
+                    />
+
+                <!-- METHOD -->
+                <GroupBox
+                    Header="Method"
+                    Grid.Row="6" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="7"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="175" Width="600" Margin="0,25,0,0" />
+                <TextBox
+                    x:Name="MethodTextbox"
+                    Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="6"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="130" Width="580" Margin="10,10,0,0"
+                    Text="{Binding RecipeModel.Method, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NotNullableString}}"
+                    TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                <!-- PREP TIME -->
+                <GroupBox
+                    Header="Prep time"
+                    Grid.Row="8" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="75" Width="187.5" Margin="0,25,12.5,0" />
+
+                <TextBox
+                    x:Name="PrepTimeHoursTextbox"
+                    Grid.Row="9" Grid.Column="1"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="30" Width="54" Margin="10,10,0,0"
+                    Text="{Binding PrepTimeHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    TextWrapping="Wrap"/>
+                <Label
+                    Content="hr"
+                    Grid.Row="9"  Grid.Column="1"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Height="30" Margin="0,10.2,9.6,0" VerticalContentAlignment="Center" Width="26"/>
+
+                <TextBox
+                    x:Name="PrepTimeMinsTextbox"
+                    Grid.Row="9" Grid.Column="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="30" Width="44" Margin="0,10,0,0"
+                    Text="{Binding PrepTimeMinutes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap"/>
+                <Label
+                    Content="min"
+                    Grid.Row="9"  Grid.Column="2"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Height="30" Margin="10,10,22.5,10" VerticalContentAlignment="Center"/>
+
+                <!-- SERVES -->
+                <GroupBox
+                    Header="Serves"
+                    Grid.Row="8" Grid.RowSpan="2" Grid.Column="3" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="75" Width="175" Margin="12.5,25,12.5,0" />
+                <TextBox
+                    x:Name="ServesTextbox"
+                    Grid.Row="9" Grid.Column="3" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="30" Width="145" Margin="27.5,10,0,0"
+                    Text="{Binding RecipeModel.NumberOfServes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap" HorizontalContentAlignment="Center"/>
+                <!-- ENEGRY -->
+                <GroupBox
+                    Header="Energy per serve"
+                    Grid.Row="8" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="75" Width="187.5" Margin="12.5,25,0,0" />
+                <TextBox
+                    x:Name="EnergyTextbox"
+                    Grid.Row="9" Grid.Column="5" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="30" Width="157.5" Margin="27.5,10,0,0"
+                    Text="{Binding RecipeModel.EnergyPerServe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NotNullableString}}"
+                    TextWrapping="Wrap" HorizontalContentAlignment="Center"/>
+
+                <!-- BUTTONS -->
+
+                <Button
+                    x:Name="SaveButton"
+                    Grid.Row="10" Grid.Column="5" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,10,10" 
+                    Height="40" Width="180"
+                    Content="Save"
+                    Command="{Binding SaveCommand}"
+                    />
+                <Button
+                    x:Name="CancelButton"
+                    Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="1"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,10,10" 
+                    Height="40" Width="80"
+                    Content="Cancel"
+                    Command="{Binding CancelCommand}"
+                    />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

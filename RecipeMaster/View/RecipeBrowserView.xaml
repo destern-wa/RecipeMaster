@@ -1,0 +1,169 @@
+﻿<UserControl x:Class="RecipeMaster.View.RecipeBrowserView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RecipeMaster.View"
+             xmlns:util="clr-namespace:RecipeMaster.Util"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="900" MinHeight="100"
+             xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+             xmlns:ViewModel="clr-namespace:RecipeMaster.ViewModel"
+             DataContext="{dxmvvm:ViewModelSource Type=ViewModel:RecipeBrowserViewModel}">
+
+    <Grid Width="auto"  Background="White">
+        <Grid.Resources>
+            <util:BoolToIntConverter x:Key="BoolToIntConverter"/>
+            <util:BoolToInvisibilityConverter x:Key="BoolToReverseVisibility"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Soritng controls -->
+        <StackPanel
+            Grid.Row="0" Grid.Column="0"
+            Orientation="Horizontal"
+            Margin="0"
+            Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToReverseVisibility}}"
+            >
+            <Label Content="Sort by: " Height="30" VerticalContentAlignment="Center"/>
+            <ComboBox
+                x:Name="SortByCombobox"
+                ItemsSource="{Binding SortOptions}"
+                SelectedValue="{Binding SelectedSortOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Width="auto" MinWidth="80" Height="30" VerticalContentAlignment="Center"/>
+            <ComboBox SelectedIndex="{Binding SortDescending, Converter={StaticResource BoolToIntConverter}}" VerticalContentAlignment="Center">
+                <ComboBoxItem Content="Ascending"/>
+                <ComboBoxItem Content="Descending"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Selected recipe controls -->
+        <StackPanel
+            Grid.Row="0" Grid.Column="1"
+            Orientation="Horizontal" HorizontalAlignment="Right" Margin="0"
+            Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToReverseVisibility}}">
+            <Label Content="Selected recipe: " Height="30" VerticalContentAlignment="Center"/>
+            <Button Content="★" FontSize="16" FontWeight="Bold" Width="28"
+                    Visibility="{Binding ElementName=RecipesDataGrid, Path=SelectedItem.IsFavourite, Mode=OneWay, Converter={StaticResource BoolToReverseVisibility}}"
+                    Command="{Binding ToggleFavCommand}"
+                    CommandParameter="{Binding ElementName=RecipesDataGrid, Path=SelectedItem}"/>
+            <Button Content="☆" FontSize="16" FontWeight="Bold" Width="28"
+                    Visibility="{Binding ElementName=RecipesDataGrid, Path=SelectedItem.IsFavourite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Command="{Binding ToggleFavCommand}"
+                    CommandParameter="{Binding ElementName=RecipesDataGrid, Path=SelectedItem}"/>
+            <Button Content="🖉" FontSize="16" FontWeight="Bold" Width="28"
+                    Command="{Binding EditRecipeCommand}"
+                    CommandParameter="{Binding ElementName=RecipesDataGrid, Path=SelectedItem}"/>
+            <Button Content="✘" FontWeight="Bold" Width="28"
+                    Command="{Binding DeleteRecipeCommand}"
+                    CommandParameter="{Binding ElementName=RecipesDataGrid, Path=SelectedItem}"/>
+        </StackPanel>
+
+        <!-- Recipe list -->
+        <DataGrid x:Name="RecipesDataGrid" ItemsSource="{Binding Recipes}"
+            Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+            Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToReverseVisibility}}"
+                  Style="{x:Null}"
+                 
+                  Width="auto" Height="auto" MaxHeight="900" Margin="0" 
+                  AutoGenerateColumns="False" CanUserResizeColumns="True"
+                  CanUserSortColumns="False"
+                  CanUserAddRows="False" CanUserResizeRows="False"
+                  SelectionMode="Single" SelectionUnit="FullRow"
+                  AlternatingRowBackground="Gainsboro"
+                  MinRowHeight="35"
+                  VerticalContentAlignment="Center" BorderThickness="1" GridLinesVisibility="None" CanUserDeleteRows="False"
+                  >
+            <DataGrid.Resources>
+                <util:PrepTimeIntToStringConverter x:Key="TimeConverter"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="★ Favourite" Width="auto" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsEnabled="False" IsManipulationEnabled="False" IsChecked="{Binding IsFavourite, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Name" Width="auto" MinWidth="200" IsReadOnly="False" Binding="{Binding Name}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Category" Width="auto" MinWidth="150" IsReadOnly="True" Binding="{Binding Category}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Prep time" Width="auto" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                Text="{Binding PrepTime, Converter={StaticResource TimeConverter}}"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Margin="1,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Serves" Width="auto" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding NumberOfServes}"
+                                       Margin="1,0"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Energy per serve" Width="auto" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding EnergyPerServe}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Margin="1,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="10,0,10,5"  Background="AntiqueWhite">
+                        <Label Content="Ingredients" FontWeight="Bold"/>
+                        <ListBox ItemsSource="{Binding Ingredients}" Margin="10,0" BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Margin="0" Padding="10"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Label Content="Method" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Method}" Margin="10,0,10,10" MaxWidth="600" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+
+        <!-- Embeded editor view, shown when editing a recipe -->
+        <ScrollViewer Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <local:RecipeEditorView
+            DataContext="{Binding EditorViewModel, Mode=OneWay}"
+            />
+        </ScrollViewer>
+
+        <!-- Success/error messaging -->
+        <local:MessageBarView
+            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+            DataContext="{Binding MessageBar}"/>
+    </Grid>
+</UserControl>

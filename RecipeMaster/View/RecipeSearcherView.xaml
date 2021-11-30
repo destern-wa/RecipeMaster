@@ -1,0 +1,185 @@
+﻿<UserControl x:Class="RecipeMaster.View.RecipeSearcherView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RecipeMaster.View"
+             xmlns:util="clr-namespace:RecipeMaster.Util"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="600"
+             xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+             xmlns:ViewModel="clr-namespace:RecipeMaster.ViewModel"
+             >
+    <Grid x:Name="LayoutRoot" Margin="10" Background="White">
+        <Grid.Resources>
+            <util:BoolToIntConverter x:Key="BoolToIntConverter"/>
+            <util:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+            <util:StringToPositiveIntConverter x:Key="StringToPositiveIntConverter"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Success/error messaging-->
+        <local:MessageBarView
+            DataContext="{Binding MessageBar}"/>
+
+        <TabControl
+            Grid.Row="1" SelectedIndex="{Binding IsAdvancedSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToIntConverter}}">
+            
+            <!-- Quick search form-->
+            <TabItem Header="Quick search" Padding="10">
+                <StackPanel Margin="10">
+                    <Label Content="Search for"/>
+                    <TextBox Padding="5"
+                             Text="{Binding SimpleSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <Button
+                            Content="Cancel"
+                            Grid.Column="0"
+                            Margin="10" Padding="10"
+                            Command="{Binding CancelCommand}"/>
+                        <Button
+                            Content="Search"
+                            Grid.Column="2"
+                            Margin="10" Padding="20 10"
+                            Command="{Binding SearchCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+            
+            <!-- Advanced search form -->
+            <TabItem Header="Advanced search" Padding="10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="Name"
+                           Padding="5" Margin="0"
+                           HorizontalAlignment="Right" VerticalContentAlignment="Center"/>
+                        <TextBox
+                        x:Name="NameSearchTextBox"
+                        Grid.Column="1" Margin="5"
+                        Text="{Binding NameSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Content="X"
+                            Grid.Row="0" Grid.Column="2"
+                            Width="auto" Margin="0,5" Padding="5,0" 
+                            VerticalContentAlignment="Center" FontSize="8" FontWeight="Bold" BorderThickness="1"
+                            Command="{Binding ClearNameCommand}"
+                        />
+
+                        <Label Content="Ingredient"
+                           Grid.Row="1"
+                           Padding="5" Margin="0" 
+                           HorizontalAlignment="Right" VerticalContentAlignment="Center"/>
+                        <ComboBox
+                            Grid.Row="1" Grid.Column="1"
+                            Margin="5"
+                            ItemsSource="{Binding Ingredients, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding SelectedIngredient, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            DisplayMemberPath="Name"
+                        />
+                        <Button Content="X"
+                            Grid.Row="1" Grid.Column="2"
+                            Width="auto" Margin="0,5" Padding="5,0" 
+                            VerticalContentAlignment="Center" FontSize="8" FontWeight="Bold" BorderThickness="1" 
+                            Command="{Binding ClearIngredientCommand}"
+                        />
+
+                        <Label Content="Prep time"
+                           Grid.Row="2"
+                           Padding="5" Margin="0"
+                           HorizontalAlignment="Right" VerticalContentAlignment="Center"/>
+                        <Grid
+                            Grid.Row="2" Grid.Column="1"
+                            Margin="5" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox
+                                Grid.Column="0"
+                                SelectedIndex="{Binding LimitIsMinimum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToIntConverter}}">
+                                <ComboBoxItem Content="Less than"/>
+                                <ComboBoxItem Content="More than" />
+                            </ComboBox>
+                            <TextBox
+                                MinWidth="40"
+                                Grid.Column="1" Margin="5 0"
+                                Text="{Binding PrepTimeLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToPositiveIntConverter}}"
+                            />
+                            <ComboBox
+                                Grid.Column="2"
+                                SelectedIndex="{Binding TimeIsInHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToIntConverter}}">
+                                <ComboBoxItem Content="minutes"/>
+                                <ComboBoxItem Content="hours" />
+                            </ComboBox>
+                        </Grid>
+                        <Button Content="X"
+                            Grid.Row="2" Grid.Column="2"
+                            Width="auto" Margin="0,5" Padding="5,0" 
+                            VerticalContentAlignment="Center" FontSize="8" FontWeight="Bold" BorderThickness="1"
+                            Command="{Binding ClearTimeLimitCommand}"
+                        />
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <Button
+                            Content="Cancel"
+                            Grid.Column="0"
+                            Margin="10" Padding="10"
+                            Command="{Binding CancelCommand}"/>
+                        <CheckBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            Content="Match all"
+                            IsChecked="{Binding MatchAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            />
+                        <Button
+                            Content="Search"
+                            Grid.Column="2"
+                            Margin="10" Padding="20 10"
+                            Command="{Binding SearchCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <Grid
+            Grid.Row="3" Grid.ColumnSpan="3"
+            Visibility="{Binding NumberOfResults, Converter={StaticResource IntToVisibilityConverter}}">
+            <local:RecipeBrowserView
+                x:Name="ResultsBrowserView" 
+                DataContext="{Binding ResultsViewDataContext, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+    </Grid>
+</UserControl>
+
